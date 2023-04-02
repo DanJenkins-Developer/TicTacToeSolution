@@ -1,0 +1,100 @@
+The error message indicates that the version of the C# compiler (csc.exe) you're using supports only up to C# 5, which is an older version of the language. To compile C# code that uses newer language features, you need to use a more recent version of the C# compiler.
+
+Visual Studio Code typically uses the .NET Core or .NET 5/6 SDK, which includes the latest C# compiler. To use the correct compiler, follow these steps:
+
+    Install the latest .NET SDK (if you haven't already) from the official website: https://dotnet.microsoft.com/download
+
+    Open a new terminal or command prompt, and verify that the .NET SDK is installed correctly by running:
+
+css
+
+dotnet --version
+
+    To compile your C# code, navigate to the folder containing your project and run the following command:
+
+dotnet build
+
+This will compile your project using the latest C# compiler and create an output folder with the compiled binaries.
+
+If your project is not set up to use the .NET SDK, you can create a new project by following these steps:
+
+    Run the following command to create a new console application:
+
+javascript
+
+dotnet new console -n TicTacToe2
+
+    Navigate to the newly created project folder:
+
+bash
+
+cd TicTacToe2
+
+    Replace the Program.cs file with your Server.cs file.
+
+    Build the project using:
+
+dotnet build
+
+    Run the compiled project using:
+
+arduino
+
+dotnet run
+
+This approach will ensure you are using the latest C# compiler and .NET SDK for your project.
+
+To run the Server.cs and Client.cs simultaneously, you can create two separate projects within a single solution. Follow these steps:
+
+    Create a new folder for the entire solution (e.g., TicTacToeSolution):
+
+bash
+
+mkdir TicTacToeSolution
+cd TicTacToeSolution
+
+    Create a new server project:
+
+arduino
+
+dotnet new console -n Server
+
+    Create a new client project:
+
+arduino
+
+dotnet new console -n Client
+
+    Create a new solution file that includes both projects:
+
+arduino
+
+dotnet new sln -n TicTacToe
+dotnet sln add Server/Server.csproj
+dotnet sln add Client/Client.csproj
+
+    Move your Server.cs file into the Server project folder, and your Client.cs file into the Client project folder.
+
+    Replace the Program.cs file in each project folder with the corresponding .cs file.
+
+    Build the entire solution using:
+
+dotnet build
+
+To run both projects simultaneously, you have a couple of options:
+
+Option 1: Use two separate terminals
+
+    Open two terminals (or command prompts).
+    In the first terminal, navigate to the Server project folder and run:
+
+arduino
+
+dotnet run
+
+    In the second terminal, navigate to the Client project folder and run:
+
+arduino
+
+dotnet run
+
