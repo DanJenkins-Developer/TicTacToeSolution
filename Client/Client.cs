@@ -14,7 +14,7 @@ using Socket client = new(
     ProtocolType.Tcp
 );
 
-Console.WriteLine("This is a test");
+//Console.WriteLine("This is a test");
 
 await client.ConnectAsync(ipEndPoint);
 string startResponse = await receiveMessage();
@@ -27,11 +27,13 @@ if (startResponse == "<|start|>")
 
     while (true)
     {
-        var message = "Hi friends! <|EOM|>";
+        //var message = "Hi friends! <|EOM|>";
+        Console.WriteLine("Enter message to send :: ");
+        var message = Console.ReadLine();
         // var messageBytes = Encoding.UTF8.GetBytes(message);
         // _ = await client.SendAsync(messageBytes, SocketFlags.None);
         // Console.WriteLine($"Socket client sent message: \"{message}\"");
-        await sendMessage(message);
+        await sendMessage(message + " <|EOM|>");
 
 
         var buffer = new byte[1_024];
@@ -41,6 +43,10 @@ if (startResponse == "<|start|>")
         {
             Console.WriteLine($"Socket client received acknowledgment: \"{response}\"");
             break;
+        }
+        else
+        {
+            Console.WriteLine($"Socket client received message: \"{response}\"");
         }
 
 

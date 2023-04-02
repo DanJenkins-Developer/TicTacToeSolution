@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\skydr\\Documents\\Development\\TicTacToeSolution\\server\\Server.csproj": {}
+    "C:\\Users\\skydr\\Documents\\Development\\TicTacToeSolution\\Server\\Server.csproj": {}
   },
   "projects": {
-    "C:\\Users\\skydr\\Documents\\Development\\TicTacToeSolution\\server\\Server.csproj": {
+    "C:\\Users\\skydr\\Documents\\Development\\TicTacToeSolution\\Server\\Server.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\skydr\\Documents\\Development\\TicTacToeSolution\\server\\Server.csproj",
+        "projectUniqueName": "C:\\Users\\skydr\\Documents\\Development\\TicTacToeSolution\\Server\\Server.csproj",
         "projectName": "Server",
-        "projectPath": "C:\\Users\\skydr\\Documents\\Development\\TicTacToeSolution\\server\\Server.csproj",
+        "projectPath": "C:\\Users\\skydr\\Documents\\Development\\TicTacToeSolution\\Server\\Server.csproj",
         "packagesPath": "C:\\Users\\skydr\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\skydr\\Documents\\Development\\TicTacToeSolution\\server\\obj\\",
+        "outputPath": "C:\\Users\\skydr\\Documents\\Development\\TicTacToeSolution\\Server\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

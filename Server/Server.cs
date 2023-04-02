@@ -50,6 +50,7 @@ while (true)
                 while (true)
                 {
                     var eom = "<|EOM|>";
+                    var endConnection = "<|END|>";
                     try
                     {
                         string recievedMessage = await receiveMessage(clientSocket);
@@ -57,13 +58,16 @@ while (true)
                         {
 
                             Console.WriteLine($"Socket server received message: \"{recievedMessage.Replace(eom, "")}\"");
-                            await sendAck(clientSocket);
+                            //await sendAck(clientSocket);
+                            await sendMessage(clientSocket, "Your message was received");
                             break;
 
                         }
-                        else
+                        else if (recievedMessage.IndexOf(endConnection) > -1)
                         {
                             // Disconnect client
+                            await sendAck(clientSocket);
+
                             clientSocket.Shutdown(SocketShutdown.Both);
                             clientSocket.Close();
                             connectedClients.TryRemove(kvp.Key, out _);
