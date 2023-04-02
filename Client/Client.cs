@@ -28,13 +28,16 @@ if (startResponse == "<|start|>")
     while (true)
     {
         //var message = "Hi friends! <|EOM|>";
-        Console.WriteLine("Enter message to send :: ");
+        Console.Write("Enter message to send :: ");
         var message = Console.ReadLine();
         // var messageBytes = Encoding.UTF8.GetBytes(message);
         // _ = await client.SendAsync(messageBytes, SocketFlags.None);
         // Console.WriteLine($"Socket client sent message: \"{message}\"");
-        await sendMessage(message + " <|EOM|>");
 
+        await Task.Delay(TimeSpan.FromSeconds(1));
+
+        await sendMessage(message + " \n");
+        //await sendMessage(message);
 
         var buffer = new byte[1_024];
         var received = await client.ReceiveAsync(buffer, SocketFlags.None);

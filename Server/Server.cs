@@ -22,78 +22,112 @@ using Socket listener = new(
 listener.Bind(ipEndPoint);
 listener.Listen(100);
 
+
+
 ConcurrentDictionary<string, Socket> connectedClients = new ConcurrentDictionary<string, Socket>();
-SemaphoreSlim clientConnectedSemaphore = new SemaphoreSlim(2, 2);
-
-
 
 while (true)
 {
+    //connectedClients.Clear();
 
     Console.WriteLine("Listening for connections...");
-    AcceptClientsAsync(listener, connectedClients, clientConnectedSemaphore);
+    AcceptClientsAsync(listener, connectedClients);
 
     Console.WriteLine("Two clients connected");
     Console.WriteLine(connectedClients.Count);
 
-    while (connectedClients.Count == 2)
+    var tasks = new List<Task>();
+    foreach (var kvp in connectedClients)
     {
-
-        var tasks = new List<Task>();
-
-        foreach (var kvp in connectedClients)
-        {
-            var clientSocket = kvp.Value;
-
-            var task = Task.Run(async () =>
-            {
-                while (true)
-                {
-                    var eom = "<|EOM|>";
-                    var endConnection = "<|END|>";
-                    try
-                    {
-                        string recievedMessage = await receiveMessage(clientSocket);
-                        if (recievedMessage.IndexOf(eom) > -1)
-                        {
-
-                            Console.WriteLine($"Socket server received message: \"{recievedMessage.Replace(eom, "")}\"");
-                            //await sendAck(clientSocket);
-                            await sendMessage(clientSocket, "Your message was received");
-                            break;
-
-                        }
-                        else if (recievedMessage.IndexOf(endConnection) > -1)
-                        {
-                            // Disconnect client
-                            await sendAck(clientSocket);
-
-                            clientSocket.Shutdown(SocketShutdown.Both);
-                            clientSocket.Close();
-                            connectedClients.TryRemove(kvp.Key, out _);
-
-                        }
-                        //string response = recievedMessage + " <|EOM|>";
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error processing client {kvp.Key}: {ex.Message}");
-                        break;
-                    }
-                }
-            });
-
-            tasks.Add(task);
-        }
-        await Task.WhenAll(tasks);
+        tasks.Add(HandleClientAsync(kvp));
     }
 
+    await Task.WhenAll(tasks);
 
-    //break;
 }
-async void AcceptClientsAsync(Socket listener, ConcurrentDictionary<string, Socket> connectedClients, SemaphoreSlim clientConnectedSemaphore)
+async Task HandleClientAsync(KeyValuePair<string, Socket> client)
 {
-    Console.WriteLine("Hello");
+    var clientSocket = client.Value;
+
+    //var eom = "<|EOM|>";
+    var eom = "\n";
+    //var endConnection = "<|END|>";
+
+
+
+    while (true)
+    {
+        Console.WriteLine("Inside while loop for client :: " + client.Key);
+        Console.WriteLine("Client count :: " + connectedClients.Count);
+
+        if (connectedClients.Count == 2)
+        {
+            try
+            {
+                string recievedMessage = await receiveMessage(clientSocket);
+                //if (recievedMessage.IndexOf(eom) > -1)
+                if (recievedMessage != "QUIT")
+                {
+
+                    Console.WriteLine($"Socket server received message: \"{recievedMessage.Replace(eom, "")}\"");
+                    //await sendAck(clientSocket);
+                    await sendMessage(clientSocket, "Your message was received");
+                    break;
+
+                }
+                //else if (recievedMessage.IndexOf(endConnection) > -1)
+                else if (recievedMessage == "QUIT")
+                {
+                    Console.WriteLine("Inside QUIT");
+                    // Disconnect client
+                    //await sendAck(clientSocket);
+
+                    // clientSocket.Shutdown(SocketShutdown.Both);
+                    // clientSocket.Close();
+                    // connectedClients.TryRemove(client.Key, out _);
+                    await HandleQuit(clientSocket, client);
+
+                    Console.WriteLine("Client disconnected");
+                    Console.WriteLine("New client count :: " + connectedClients.Count);
+
+                    break;
+
+                }
+                //string response = recievedMessage + " <|EOM|>";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error processing client {client.Key}: {ex.Message}");
+                await HandleQuit(clientSocket, client);
+                break;
+            }
+        }
+        else if (connectedClients.Count == 1)
+        {
+            await sendAck(clientSocket);
+            break;
+        }
+    }
+
+}
+async Task HandleQuit(Socket clientSocket, KeyValuePair<string, Socket> client)
+{
+    await DisconnectClient(clientSocket, client);
+
+}
+async Task DisconnectClient(Socket clientSocket, KeyValuePair<string, Socket> client)
+{
+    // Disconnect client
+    await sendAck(clientSocket);
+
+    clientSocket.Shutdown(SocketShutdown.Both);
+    clientSocket.Close();
+    connectedClients.TryRemove(client.Key, out _);
+}
+async void AcceptClientsAsync(Socket listener, ConcurrentDictionary<string, Socket> connectedClients)
+{
+    SemaphoreSlim clientConnectedSemaphore = new SemaphoreSlim(2, 2);
+
     while (connectedClients.Count < 2)
     {
 
@@ -126,16 +160,25 @@ async Task sendAck(Socket handler)
     var ackMessage = "<|ACK|>";
     var echoBytes = Encoding.UTF8.GetBytes(ackMessage);
     await handler.SendAsync(echoBytes, 0);
+    //Console.WriteLine($"Socket server sent acknowledgment: \"{ackMessage}\"");
     Console.WriteLine($"Socket server sent acknowledgment: \"{ackMessage}\"");
 }
 async Task<string> receiveMessage(Socket handler)
 {
     Console.WriteLine("Waiting for message");
-    var buffer = new byte[1_024];
-    var received = await handler.ReceiveAsync(buffer, SocketFlags.None);
-    var response = Encoding.UTF8.GetString(buffer, 0, received);
 
+    var task = Task.Run(async () =>
+    {
+        var buffer = new byte[1_024];
+        var received = await handler.ReceiveAsync(buffer, SocketFlags.None);
+        var response = Encoding.UTF8.GetString(buffer, 0, received);
+        return response;
+    });
+    // var buffer = new byte[1_024];
+    // var received = await handler.ReceiveAsync(buffer, SocketFlags.None);
+    // var response = Encoding.UTF8.GetString(buffer, 0, received);
 
+    var message = await task;
     //Console.WriteLine($"Socket server received message: \"{response}\"");
-    return response;
+    return message;
 }
