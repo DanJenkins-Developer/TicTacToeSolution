@@ -85,7 +85,7 @@ while (true)
     }
 
 
-    break;
+    //break;
 }
 async void AcceptClientsAsync(Socket listener, ConcurrentDictionary<string, Socket> connectedClients, SemaphoreSlim clientConnectedSemaphore)
 {
